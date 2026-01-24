@@ -29,18 +29,15 @@ jobs:
 
           mkdir -p playlists
 
-          # Validate manual file
           if [ ! -f "$MANUAL_FILE" ]; then
             echo "ERROR: $MANUAL_FILE not found"
             exit 1
           fi
 
-          # Download upstream auto playlist (remove ALL EXTM3U)
           curl -fsSL https://iptv-org.github.io/iptv/index.m3u \
             | grep -v -i '^[[:space:]]*#extm3u[[:space:]]*$' \
             > "$TMP_REMOTE"
 
-          # Rebuild playlist (manual copied AS-IS)
           {
             echo "#EXTM3U"
             echo
@@ -55,13 +52,74 @@ jobs:
           mv "$TMP_FINAL" "$PLAYLIST"
           rm -f "$TMP_REMOTE"
 
-          # FINAL NORMALIZATION: FORCE SINGLE #EXTM3U AT TOP (SAFE)
           {
             echo "#EXTM3U"
             grep -v -i '^[[:space:]]*#extm3u[[:space:]]*$' "$PLAYLIST"
           } > "${PLAYLIST}.tmp"
 
           mv "${PLAYLIST}.tmp" "$PLAYLIST"
+
+      - name: Update README with exact playlist changes (keep last 2)
+        run: |
+          set -e
+
+          README="README.md"
+          PLAYLIST="playlists/all-channels.m3u"
+          TMP_LOG="readme.tmp"
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+
+          if [ ! -f "$README" ]; then
+            echo "# IPTV Playlist" > "$README"
+            echo >> "$README"
+          fi
+
+          if ! grep -q "## 📡 Auto Playlist Update Log" "$README"; then
+            echo >> "$README"
+            echo "## 📡 Auto Playlist Update Log" >> "$README"
+          fi
+
+          ADDED=$(git diff HEAD~1..HEAD -- "$PLAYLIST" \
+            | grep '^+#EXTINF' \
+            | sed 's/^+#EXTINF[^,]*,//')
+
+          REMOVED=$(git diff HEAD~1..HEAD -- "$PLAYLIST" \
+            | grep '^-\#EXTINF' \
+            | sed 's/^-\#EXTINF[^,]*,//')
+
+          {
+            echo
+            echo "### Update: $TIMESTAMP"
+            echo
+            echo "Added:"
+            if [ -n "$ADDED" ]; then
+              echo "$ADDED" | sed 's/^/- /'
+            else
+              echo "- None"
+            fi
+            echo
+            echo "Removed:"
+            if [ -n "$REMOVED" ]; then
+              echo "$REMOVED" | sed 's/^/- /'
+            else
+              echo "- None"
+            fi
+          } >> "$README"
+
+          awk '
+            BEGIN { keep=0; count=0 }
+            /^## 📡 Auto Playlist Update Log/ { print; keep=1; next }
+            /^### Update:/ {
+              count++
+              if (count <= 2) print
+              else keep=0
+              next
+            }
+            keep { print }
+          ' "$README" > "$TMP_LOG"
+
+          mv "$TMP_LOG" "$README"
+
+          git add "$README"
 
       - name: Commit and push if changed
         run: |
@@ -70,9 +128,9 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          git add playlists/all-channels.m3u
+          git add playlists/all-channels.m3u README.md
           git diff --cached --quiet && exit 0
 
-          git commit -m "Auto-update IPTV playlist"
+          git commit -m "Auto-update IPTV playlist with detailed README log"
           git pull --rebase origin main
           git push origin main
