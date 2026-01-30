@@ -5,6 +5,9 @@ on:
     - cron: "0 3 */3 * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -42,8 +45,9 @@ jobs:
             touch "$OLD_PLAYLIST"
           fi
 
+          # Fetch upstream playlist (strip ONLY the single EXTM3U header)
           curl -fsSL https://iptv-org.github.io/iptv/index.m3u \
-            | grep -v -i '^[[:space:]]*#extm3u[[:space:]]*$' \
+            | grep -v -i '^#extm3u' \
             > "$TMP_REMOTE"
 
           {
@@ -80,11 +84,11 @@ jobs:
             echo "## 📡 Auto Playlist Update Log" >> "$README"
           fi
 
-          ADDED=$(diff -u "$OLD_PLAYLIST" "$PLAYLIST" \
+          ADDED=$(diff -u "$OLD_PLAYLIST" "$PLAYLIST" || true \
             | grep '^+#EXTINF' \
             | sed 's/^+#EXTINF[^,]*,//')
 
-          REMOVED=$(diff -u "$OLD_PLAYLIST" "$PLAYLIST" \
+          REMOVED=$(diff -u "$OLD_PLAYLIST" "$PLAYLIST" || true \
             | grep '^-#EXTINF' \
             | sed 's/^-#EXTINF[^,]*,//')
 
@@ -107,20 +111,31 @@ jobs:
             fi
           } >> "$README"
 
+          # Keep ONLY the latest 2 updates under the log header
           awk '
-            BEGIN { inlog=0; updates=0 }
+            BEGIN { inlog=0 }
             /^## 📡 Auto Playlist Update Log/ {
               print
               inlog=1
               next
             }
             /^### Update:/ {
-              updates++
-              if (updates <= 2) print
+              updates[++n] = $0
+              blocks[n] = ""
               next
             }
-            inlog && updates <= 2 { print }
+            inlog && n > 0 {
+              blocks[n] = blocks[n] $0 "\n"
+              next
+            }
             !inlog { print }
+            END {
+              start = (n > 2 ? n - 1 : 1)
+              for (i = start; i <= n; i++) {
+                print updates[i]
+                printf "%s", blocks[i]
+              }
+            }
           ' "$README" > "$TMP_LOG"
 
           mv "$TMP_LOG" "$README"
@@ -136,4 +151,4 @@ jobs:
           git diff --cached --quiet && exit 0
 
           git commit -m "Auto-update IPTV playlist and README changelog"
-          git push origin main
+          git push
