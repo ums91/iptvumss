@@ -29,6 +29,7 @@ jobs:
           AUTO_MARKER="# === AUTO-GENERATED CHANNELS (DO NOT EDIT BELOW) ==="
 
           TMP_REMOTE="remote.tmp"
+          TMP_AUTO="auto.tmp"
           TMP_FINAL="final.tmp"
 
           mkdir -p playlists
@@ -45,10 +46,29 @@ jobs:
             touch "$OLD_PLAYLIST"
           fi
 
-          # Fetch upstream playlist (strip ONLY the single EXTM3U header)
+          # Fetch upstream playlist (strip ONLY EXTM3U header)
           curl -fsSL https://iptv-org.github.io/iptv/index.m3u \
             | grep -v -i '^#extm3u' \
             > "$TMP_REMOTE"
+
+          # Deduplicate by channel name, replace URL + full EXTINF (tvg-id, etc.)
+          awk '
+          /^#EXTINF/ {
+            extinf = $0
+            match($0, /,([^,]+)$/, m)
+            name = m[1]
+            getline url
+
+            meta[name] = extinf
+            stream[name] = url
+          }
+          END {
+            for (name in meta) {
+              print meta[name]
+              print stream[name]
+            }
+          }
+          ' "$TMP_REMOTE" > "$TMP_AUTO"
 
           {
             echo "#EXTM3U"
@@ -58,11 +78,11 @@ jobs:
             echo "$MANUAL_END"
             echo
             echo "$AUTO_MARKER"
-            cat "$TMP_REMOTE"
+            cat "$TMP_AUTO"
           } > "$TMP_FINAL"
 
           mv "$TMP_FINAL" "$PLAYLIST"
-          rm -f "$TMP_REMOTE"
+          rm -f "$TMP_REMOTE" "$TMP_AUTO"
 
       - name: Update README with exact playlist changes (keep last 2)
         run: |
@@ -105,7 +125,7 @@ jobs:
             echo
             echo "Removed:"
             if [ -n "$REMOVED" ]; then
-              echo "$REMOVED" | sed 's/^/- /'
+              echo "$REMOVED" | sed 's/^-/- /'
             else
               echo "- None"
             fi
