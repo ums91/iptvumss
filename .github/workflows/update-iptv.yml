@@ -39,16 +39,19 @@ jobs:
             exit 1
           fi
 
+          # Save old playlist for diffing
           if [ -f "$PLAYLIST" ]; then
             cp "$PLAYLIST" "$OLD_PLAYLIST"
           else
             touch "$OLD_PLAYLIST"
           fi
 
+          # Fetch upstream playlist (strip ONLY EXTM3U header)
           curl -fsSL https://iptv-org.github.io/iptv/index.m3u \
             | grep -v -i '^#extm3u' \
             > "$TMP_REMOTE"
 
+          # Deduplicate by channel name, replace URL + full EXTINF
           awk '
           /^#EXTINF/ {
             extinf = $0
@@ -81,22 +84,40 @@ jobs:
           mv "$TMP_FINAL" "$PLAYLIST"
           rm -f "$TMP_REMOTE" "$TMP_AUTO"
 
-      - name: Update README with channel overview (latest only)
+      - name: Update README with Added / Removed / Updated channels
         run: |
           set -e
 
           README="README.md"
-          PLAYLIST="playlists/all-channels.m3u"
-          OLD_PLAYLIST="playlists/all-channels.old.m3u"
+          OLD="playlists/all-channels.old.m3u"
+          NEW="playlists/all-channels.m3u"
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
 
+          extract_map() {
+            awk '
+            /^#EXTINF/ {
+              match($0, /,([^,]+)$/, m)
+              name = m[1]
+              getline url
+              print name "|" url
+            }' "$1" | sort
+          }
+
+          extract_map "$OLD" > old.map
+          extract_map "$NEW" > new.map
+
           ADDED=$(comm -13 \
-            <(grep '^#EXTINF' "$OLD_PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort) \
-            <(grep '^#EXTINF' "$PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort))
+            <(cut -d"|" -f1 old.map) \
+            <(cut -d"|" -f1 new.map))
 
           REMOVED=$(comm -23 \
-            <(grep '^#EXTINF' "$OLD_PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort) \
-            <(grep '^#EXTINF' "$PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort))
+            <(cut -d"|" -f1 old.map) \
+            <(cut -d"|" -f1 new.map))
+
+          UPDATED=$(
+            join -t"|" old.map new.map \
+            | awk -F"|" '$2 != $3 { print $1 }'
+          )
 
           {
             echo "# IPTV Playlist"
@@ -118,7 +139,16 @@ jobs:
             else
               echo "- None"
             fi
+            echo
+            echo "### Channels Updated (Link Changed)"
+            if [ -n "$UPDATED" ]; then
+              echo "$UPDATED" | sed 's/^/- /'
+            else
+              echo "- None"
+            fi
           } > "$README"
+
+          rm -f old.map new.map
 
       - name: Commit and push if changed
         run: |
