@@ -39,19 +39,16 @@ jobs:
             exit 1
           fi
 
-          # Save old playlist for diffing
           if [ -f "$PLAYLIST" ]; then
             cp "$PLAYLIST" "$OLD_PLAYLIST"
           else
             touch "$OLD_PLAYLIST"
           fi
 
-          # Fetch upstream playlist (strip ONLY EXTM3U header)
           curl -fsSL https://iptv-org.github.io/iptv/index.m3u \
             | grep -v -i '^#extm3u' \
             > "$TMP_REMOTE"
 
-          # Deduplicate by channel name, replace URL + full EXTINF
           awk '
           /^#EXTINF/ {
             extinf = $0
@@ -84,80 +81,44 @@ jobs:
           mv "$TMP_FINAL" "$PLAYLIST"
           rm -f "$TMP_REMOTE" "$TMP_AUTO"
 
-      - name: Update README with exact playlist changes (keep only latest)
+      - name: Update README with channel overview (latest only)
         run: |
           set -e
 
           README="README.md"
           PLAYLIST="playlists/all-channels.m3u"
           OLD_PLAYLIST="playlists/all-channels.old.m3u"
-          TMP_LOG="readme.tmp"
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
 
-          if [ ! -f "$README" ]; then
-            echo "# IPTV Playlist" > "$README"
-            echo >> "$README"
-          fi
+          ADDED=$(comm -13 \
+            <(grep '^#EXTINF' "$OLD_PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort) \
+            <(grep '^#EXTINF' "$PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort))
 
-          if ! grep -q "## 📡 Auto Playlist Update Log" "$README"; then
-            echo >> "$README"
-            echo "## 📡 Auto Playlist Update Log" >> "$README"
-          fi
-
-          ADDED=$(diff -u "$OLD_PLAYLIST" "$PLAYLIST" || true \
-            | grep '^+#EXTINF' \
-            | sed 's/^+#EXTINF[^,]*,//')
-
-          REMOVED=$(diff -u "$OLD_PLAYLIST" "$PLAYLIST" || true \
-            | grep '^-#EXTINF' \
-            | sed 's/^-#EXTINF[^,]*,//')
+          REMOVED=$(comm -23 \
+            <(grep '^#EXTINF' "$OLD_PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort) \
+            <(grep '^#EXTINF' "$PLAYLIST" | sed 's/^#EXTINF[^,]*,//' | sort))
 
           {
+            echo "# IPTV Playlist"
             echo
-            echo "### Update: $TIMESTAMP"
+            echo "## 📡 Auto Playlist Update Overview"
             echo
-            echo "Added:"
+            echo "Last Updated: $TIMESTAMP"
+            echo
+            echo "### Channels Added"
             if [ -n "$ADDED" ]; then
               echo "$ADDED" | sed 's/^/- /'
             else
               echo "- None"
             fi
             echo
-            echo "Removed:"
+            echo "### Channels Removed"
             if [ -n "$REMOVED" ]; then
-              echo "$REMOVED" | sed 's/^-/- /'
+              echo "$REMOVED" | sed 's/^/- /'
             else
               echo "- None"
             fi
-          } >> "$README"
-
-          # Keep ONLY the latest update under the log header
-          awk '
-            BEGIN { inlog=0 }
-            /^## 📡 Auto Playlist Update Log/ {
-              print
-              inlog=1
-              next
-            }
-            /^### Update:/ {
-              updates[++n] = $0
-              blocks[n] = ""
-              next
-            }
-            inlog && n > 0 {
-              blocks[n] = blocks[n] $0 "\n"
-              next
-            }
-            !inlog { print }
-            END {
-              if (n > 0) {
-                print updates[n]
-                printf "%s", blocks[n]
-              }
-            }
-          ' "$README" > "$TMP_LOG"
-
-          mv "$TMP_LOG" "$README"
+          } > "$README"
 
       - name: Commit and push if changed
         run: |
@@ -169,5 +130,5 @@ jobs:
           git add playlists/all-channels.m3u README.md
           git diff --cached --quiet && exit 0
 
-          git commit -m "Auto-update IPTV playlist and README changelog"
+          git commit -m "Auto-update IPTV playlist and README overview"
           git push
