@@ -51,7 +51,7 @@ jobs:
             | grep -v -i '^#extm3u' \
             > "$TMP_REMOTE"
 
-          # Deduplicate by channel name, replace URL + full EXTINF (tvg-id, etc.)
+          # Deduplicate by channel name, replace URL + full EXTINF
           awk '
           /^#EXTINF/ {
             extinf = $0
@@ -84,7 +84,7 @@ jobs:
           mv "$TMP_FINAL" "$PLAYLIST"
           rm -f "$TMP_REMOTE" "$TMP_AUTO"
 
-      - name: Update README with exact playlist changes (keep last 2)
+      - name: Update README with exact playlist changes (keep only latest)
         run: |
           set -e
 
@@ -131,7 +131,7 @@ jobs:
             fi
           } >> "$README"
 
-          # Keep ONLY the latest 2 updates under the log header
+          # Keep ONLY the latest update under the log header
           awk '
             BEGIN { inlog=0 }
             /^## 📡 Auto Playlist Update Log/ {
@@ -150,10 +150,9 @@ jobs:
             }
             !inlog { print }
             END {
-              start = (n > 2 ? n - 1 : 1)
-              for (i = start; i <= n; i++) {
-                print updates[i]
-                printf "%s", blocks[i]
+              if (n > 0) {
+                print updates[n]
+                printf "%s", blocks[n]
               }
             }
           ' "$README" > "$TMP_LOG"
