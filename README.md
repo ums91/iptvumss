@@ -2,61 +2,114 @@
 
 ## 📡 Auto Playlist Update Overview
 
-Last Updated: 2026-02-07 04:39 UTC
+Last Updated: 2026-02-10 05:06 UTC
 
 ### Channels Added
-- Billiard TV (1080p)
-- CNA Originals (1080p)
-- Cafe Futbol (1080p) [Geo-blocked]
-- Canal Once (480p)
-- Chivacoa TV Internacional (720p)
-- Color Vision (480p) [Not 24/7]
-- Documentary+ (1080p)
-- ETB Basque (720p)
-- Fuego TV [Not 24/7]
-- GTC Punjabi (1080p)
-- Gangaur TV (1080p)
-- Gramy Dalej (1080p) [Geo-blocked]
-- JARABACOA TV (1080p) [Not 24/7]
-- Memorias TV Classic (480p) [Geo-blocked]
-- Memorias TV Film (720p) [Geo-blocked]
-- Memorias TV Series (720p) [Geo-blocked]
-- Memorias TV Toons (480p) [Geo-blocked]
-- Memorias TV Tropical (480p) [Geo-blocked]
-- Memorias del Corazon (480p) [Geo-blocked]
-- NBC Sports NOW (1080p)
-- Play Crime (1080p) [Geo-blocked]
-- Red Social Codi TV (360p) [Not 24/7]
-- USMPTV
-- Vantage Dance (720p)
-- ČT 1
-- ČT 2
+- Aaj Tak (404p)
+- Aaj Tak HD (1080p)
+- DD Bharati (576p)
+- DD Kisan (576p)
+- DD News HD (1080p)
+- DD Sports SD (1080p)
+- DD Urdu (576p)
+- FON Music
+- MBC Drama (1080p)
+- Mango (1080p) [Geo-blocked]
+- Mazowsze.tv (1080p)
+- Medi 1 TV Arabic (720p)
+- Medi 1 TV Maghreb (720p)
+- Millet (720p)
+- Noticias 16 (720p) [Not 24/7]
+- Planeta-RTR
+- Polsat Play (1080p)
+- Punto TV (1080p) [Not 24/7]
+- RTL Crime (1080p)
+- RTL Passion (1080p)
+- Radio RAM (1080p)
+- Santiago TV (720p) [Not 24/7]
+- Sony Entertainment Television HD (720p)
+- TV Cotui Canal 31 (1080p) [Not 24/7]
+- TV Daja (1080p) [Not 24/7]
+- TVP Historia (720p)
+- TVP World
+- TVP2 (1080p)
+- Vantage Rock (720p) [Geo-blocked]
+- WP TV (720p)
+- zenith
+- Дума ТВ [Not 24/7]
+- Крым 24
+- Россия-РТР
 
 ### Channels Removed
-- AKIBA PASS TV Anime: Sport
-- Big Time Rush
-- Billiard TV
-- CT1
-- CT2
-- Canal Diplomático (720p) [Not 24/7]
-- Canal I (720p)
-- Canal Nubeh TV (720p)
-- Canal+ Sport 2 (1080i)
-- Cantina TV (1080p)
-- Color Vision (720p)
-- ETB 1 (720p)
-- ETB 2 (720p)
-- ETB Basque (480p)
-- FDF (1080p)
-- Fuego TV (720p) [Not 24/7]
-- Fury
-- Goldstar TV
-- Hours to Kill Zeitachse des Todes
-- Hours to Kill – Zeitachse des Todes
-- JARABACOA TV (720p)
-- MTV Music
-- Red Social Códi TV (360p)
+- Aaj Tak (1080p)
+- Cosmote Sport 1
+- Cosmote Sport 2
+- Cosmote Sport 3
+- Cosmote Sport 4
+- Cosmote Sport 5
+- Cosmote Sport 6
+- Cosmote Sport 7
+- Cosmote Sport 8
+- Cosmote Sport 9
+- Cotui TV (720p)
+- Crimea 24 (576i)
+- DD BHARATI (576p)
+- DD KISAN (576p)
+- DD SPORTS (576p)
+- DD URDU (576p)
+- Home TV (1080p)
+- M+ (1080p)
+- MBC Drama KSA (1080p)
+- MOTORVISION.TV
+- Medi 1 TV Arabic (1080p)
+- Medi 1 TV Maghreb (1080p)
+- Medi1TV Afrique (1080p)
+- Motorsport.tv
+- Music Box Polska (1080p) [Geo-blocked]
+- Noticias 16
+- Punto TV (720p)
+- Red Carpet TV International
+- Rotana Aflam+ (1080p)
+- Santiago TV (720p)
+- Star Sports 1 HD (720p)
+- Star Sports 2 HD (720p)
+- Stars TV (1080p) [Geo-blocked]
+- TV Daja (1080p)
+- TV Regionalna Lubin (576p) [Not 24/7]
+- TVP 3 Białystok (576p) [Geo-blocked]
+- TVP 3 Bydgoszcz (576p) [Geo-blocked]
+- TVP 3 Gdańsk (576p) [Geo-blocked]
+- TVP 3 Gorzów Wielkopolski (576p) [Geo-blocked]
+- TVP 3 Katowice (576p) [Geo-blocked]
+- TVP 3 Kielce (576p) [Geo-blocked]
+- TVP 3 Kraków (576p) [Geo-blocked]
+- TVP 3 Lublin (576p) [Geo-blocked]
+- TVP 3 Olsztyn (576p) [Geo-blocked]
+- TVP 3 Opole (576p) [Geo-blocked]
+- TVP 3 Poznań (576p) [Geo-blocked]
+- TVP 3 Rzeszów (576p) [Geo-blocked]
+- TVP 3 Szczecin (576p) [Geo-blocked]
+- TVP 3 Warszawa (576p) [Geo-blocked]
+- TVP 3 Wrocław (576p) [Geo-blocked]
+- TVP 3 Łódź (576p) [Geo-blocked]
+- TVP World (1080p) [Geo-blocked]
+- TVP2 (1080i) [Geo-blocked]
+- Tele5 (1080p) [Geo-blocked]
+- The Guardian
+- Top Kids HD (1080p)
+- Truso TV (576p) [Not 24/7]
+- WP TV (1080p) [Geo-blocked]
+- Zoom TV (1080p) [Geo-blocked]
+- Дума ТВ
+- Миллет (540p) [Not 24/7]
+- РТР Планета Азия
+- РТР Планета Евро
+- РТР Планета СНГ
+- РТР Планета США
+- ТНТ MUSIC
 
 ### Channels Updated (Link Changed)
 - Alsacias Televisión (ATV 
-- MBC 1 (1080p)
+- Libya Al Ahrar TV (1080p)
+- Makan 33 (1080p)
+- Wanasah (1080p)
