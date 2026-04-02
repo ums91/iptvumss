@@ -2,7 +2,7 @@ name: Auto Update IPTV Playlist
 
 on:
   schedule:
-    - cron: "0 3 */3 * *"
+    - cron:
   workflow_dispatch:
 
 permissions:
